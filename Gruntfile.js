@@ -2,8 +2,11 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
 
+    clean: ["out"],
+    
     coffee: {
       compile: {
+        sourceMap: true,
         expand: true,
         flatten: true,
         cwd: "src",
@@ -58,4 +61,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-jasmine");
   grunt.loadNpmTasks('grunt-contrib-coffee');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 };
