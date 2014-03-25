@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
 
     clean: ["out"],
-    
+
     coffee: {
       compile: {
         sourceMap: true,
@@ -53,6 +53,13 @@ module.exports = function(grunt) {
           ]
         }
       }
+    },
+    watch: {
+      all: {
+        files: ["src/**/*.js", "src/**/*.coffee",
+                "test/**/*.js", "test/**/*.coffee"],
+        tasks: ["default"]
+      }
     }
   });
 
@@ -62,4 +69,5 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jasmine");
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks("grunt-contrib-watch");
 };
