@@ -1,0 +1,1 @@
+window.sayHelloCS = -> "Hello, CoffeeScript!"

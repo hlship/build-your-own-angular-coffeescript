@@ -2,6 +2,26 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
 
+    coffee: {
+      compile: {
+        expand: true,
+        flatten: true,
+        cwd: "src",
+        src: ["*.coffee"],
+        dest: "out/prod",
+        ext: ".js"
+      },
+
+      compileTest: {
+        expand: true,
+        flatten: true,
+        cwd: "test",
+        src: ["*.coffee"],
+        dest: "out/test",
+        ext: ".js"
+      }
+    },
+
     jshint: {
       all: ["src/**/*.js", "test/**/*.js"],
       options: {
@@ -20,9 +40,9 @@ module.exports = function(grunt) {
     },
     jasmine: {
       unit: {
-        src: "src/**/*.js",
+        src: ["src/**/*.js", "out/prod/**/*.js"],
         options: {
-          specs: ["test/**/*.js"]
+          specs: ["test/**/*.js", "out/test/**/*.js"]
         }
       }
     }
@@ -30,4 +50,5 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-jasmine");
+  grunt.loadNpmTasks('grunt-contrib-coffee');
 };
