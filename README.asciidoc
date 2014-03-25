@@ -1,5 +1,5 @@
 = build-your-own-angular-coffeescript
 
-Working through Tero Parviainen's "http://teropa.info/build-your-own-angular/[Build Your Own AngularJS]" ... in CoffeeScript!
+Working through Tero Parviainen's http://teropa.info/build-your-own-angular/[Build Your Own AngularJS] ... in CoffeeScript!
 
 This is an ongoing process.  I'm committing often, and tagging at the end of each chapter.
