@@ -6,7 +6,10 @@ module.exports = function(grunt) {
 
     coffee: {
       compile: {
-        sourceMap: true,
+        options: {
+          bare: true,
+          sourceMap: true
+        },
         expand: true,
         flatten: true,
         cwd: "src",
@@ -16,6 +19,10 @@ module.exports = function(grunt) {
       },
 
       compileTest: {
+        options: {
+          bare: true,
+          sourceMap: true
+        },
         expand: true,
         flatten: true,
         cwd: "test",
@@ -24,24 +31,7 @@ module.exports = function(grunt) {
         ext: ".js"
       }
     },
-
-    jshint: {
-      // CoffeeScript should always generate lint-free JS, but why not check?
-      all: ["src/**/*.js", "test/**/*.js", "out/**/*.js"],
-      options: {
-        globals: {
-          _ : false,
-          $ : false,
-          jasmine: false,
-          describe: false,
-          it: false,
-          expect: false,
-          beforeEach: false
-        },
-        browser: true,
-        devel: true
-      }
-    },
+    
     jasmine: {
       unit: {
         src: ["src/**/*.js", "out/prod/**/*.js"],
@@ -63,9 +53,8 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask("default", ["coffee", "jshint", "jasmine"]);
+  grunt.registerTask("default", ["coffee", "jasmine"]);
 
-  grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-jasmine");
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-clean');
