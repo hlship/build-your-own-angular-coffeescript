@@ -1,1 +1,0 @@
-window.sayHelloCS = -> "Hello, CoffeeScript!"
