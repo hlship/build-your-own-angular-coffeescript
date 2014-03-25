@@ -1,0 +1,5 @@
+###
+jshint globalstrict: true
+###
+
+@Scope = ->
