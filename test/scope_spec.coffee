@@ -72,3 +72,20 @@ describe "Scope", ->
 
       expect scope.counter
         .toBe 2
+
+    it "calls the listener when the watch value is initially undefined", ->
+
+      scope.counter = 0
+
+      watchFn = (scope) -> scope.someValue
+      listenerFn = (newValue, oldValue, scope) -> scope.counter++
+
+      scope.$watch watchFn, listenerFn
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+
+        

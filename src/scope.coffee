@@ -15,8 +15,14 @@ function Scope() {
   @$$watchers = []
 ###
 
+# This isn't called, its used as a kind of private substitute for undefined
+# to ensure that listener is invoked on the first digest. Functions always
+# compare as not-equal.
+
+initWatchVal = ->
+
 Scope::$watch = (watchFn, listenerFn) ->
-  @$$watchers.unshift {watchFn, listenerFn}
+  @$$watchers.unshift {watchFn, listenerFn, last: initWatchVal}
   return this
 
 Scope::$digest = ->  
