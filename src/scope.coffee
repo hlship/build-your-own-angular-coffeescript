@@ -19,7 +19,13 @@ Scope::$watch = (watchFn, listenerFn) ->
   @$$watchers.unshift {watchFn, listenerFn}
   return this
 
-Scope::$digest = ->
-  for w in @$$watchers
-    w.listenerFn()
+Scope::$digest = ->  
+  for watcher in @$$watchers
+    newValue = watcher.watchFn this
+    oldValue = watcher.last
+
+    unless newValue is oldValue
+      watcher.last = newValue
+      watcher.listenerFn newValue, oldValue, this
+
   return this
