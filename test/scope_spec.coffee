@@ -3,8 +3,6 @@ jshint globalstrict: true
 global Scope: false
 ###
 
-console.debug "insanity!"
-
 describe "Scope", ->
 
   it "can be constructed and used as an object", ->
@@ -20,9 +18,6 @@ describe "Scope", ->
 
     beforeEach -> 
       scope = new Scope()
-      for k, v of scope
-        console.debug k
-      return
 
     it "calls the listener function of a watch on first $digest", ->
 
@@ -35,5 +30,3 @@ describe "Scope", ->
 
       expect listenerFn
         .toHaveBeenCalled()
-
-      return
