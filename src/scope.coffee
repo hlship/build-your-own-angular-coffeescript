@@ -25,13 +25,20 @@ Scope::$watch = (watchFn, listenerFn) ->
   @$$watchers.unshift {watchFn, listenerFn, last: initWatchVal}
   return this
 
-Scope::$digest = ->  
+Scope::$digest = ->
+
+  while true
+    return this unless @$$digestOnce()
+
+Scope::$$digestOnce = ->  
+  dirty = false
   for watcher in @$$watchers
     newValue = watcher.watchFn this
     oldValue = watcher.last
 
     unless newValue is oldValue
+      dirty = true
       watcher.last = newValue
       watcher.listenerFn newValue, oldValue, this
 
-  return this
+  return dirty
