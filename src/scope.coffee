@@ -13,6 +13,7 @@ function Scope() {
 ### 
 @Scope = ->
   @$$watchers = []
+  @$$lastDirtyWatch = null
 ###
 
 # This isn't called, its used as a kind of private substitute for undefined
@@ -27,6 +28,7 @@ Scope::$watch = (watchFn, listenerFn) ->
 
 Scope::$digest = ->
 
+  @$$lastDirtyWatch = null
   for i in [1..10]
     return this unless @$$digestOnce()
 
@@ -34,13 +36,18 @@ Scope::$digest = ->
 
 Scope::$$digestOnce = ->  
   dirty = false
-  for watcher in @$$watchers
+  length = @$$watchers.length
+  while length--
+    watcher = @$$watchers[length]
     newValue = watcher.watchFn this
     oldValue = watcher.last
 
     unless newValue is oldValue
       dirty = true
+      @$$lastDirtyWatch = watcher
       watcher.last = newValue
       watcher.listenerFn newValue, oldValue, this
+    else if @$$lastDirtyWatch is watcher
+      return false
 
   return dirty

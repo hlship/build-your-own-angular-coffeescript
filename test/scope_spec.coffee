@@ -126,5 +126,31 @@ describe "Scope", ->
       expect (-> scope.$digest())
         .toThrow()
 
+    it "ends the digest when the last watch is clean", ->
+
+      scope.array = _.range 100
+
+      watchExecutions = 0
+
+      for i in [0..99]
+          do (i) ->
+            scope.$watch ((scope) -> 
+                watchExecutions++
+                scope.array[i]),
+            (newValue, oldValue, scope) ->
+
+      scope.$digest()
+
+      expect watchExecutions
+        .toBe 200
+
+      scope.array[0] = 420
+
+      scope.$digest()
+
+      expect watchExecutions
+        .toBe 301
+
+
 
 
