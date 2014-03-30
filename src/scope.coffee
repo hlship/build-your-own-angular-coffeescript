@@ -27,8 +27,10 @@ Scope::$watch = (watchFn, listenerFn) ->
 
 Scope::$digest = ->
 
-  while true
+  for i in [1..10]
     return this unless @$$digestOnce()
+
+  throw Error "$digest did not settle after 10 iterations"
 
 Scope::$$digestOnce = ->  
   dirty = false
