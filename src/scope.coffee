@@ -2,19 +2,9 @@
 jshint globalstrict: true
 ###
 
-
-## For some reason, Scope = -> doesn't quite do the right thing.
-`
-function Scope() { 
-  this.$$watchers = [];
-}
-`
-
-### 
 @Scope = ->
   @$$watchers = []
   @$$lastDirtyWatch = null
-###
 
 # This isn't called, its used as a kind of private substitute for undefined
 # to ensure that listener is invoked on the first digest. Functions always
@@ -22,13 +12,13 @@ function Scope() {
 
 initWatchVal = ->
 
-Scope::$watch = (watchFn, listenerFn) ->
+@Scope::$watch = (watchFn, listenerFn) ->
   @$$watchers.unshift {watchFn, listenerFn, last: initWatchVal}
   @$$lastDirtyWatch = null
-  
+
   return this
 
-Scope::$digest = ->
+@Scope::$digest = ->
 
   @$$lastDirtyWatch = null
   for i in [1..10]
@@ -36,7 +26,7 @@ Scope::$digest = ->
 
   throw Error "$digest did not settle after 10 iterations"
 
-Scope::$$digestOnce = ->  
+@Scope::$$digestOnce = ->  
   dirty = false
   length = @$$watchers.length
   while length--

@@ -7,7 +7,7 @@ module.exports = function(grunt) {
     coffee: {
       compile: {
         options: {
-          bare: true,
+          bare: false,
           sourceMap: true
         },
         expand: true,
@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 
       compileTest: {
         options: {
-          bare: true,
+          bare: false,
           sourceMap: true
         },
         expand: true,
