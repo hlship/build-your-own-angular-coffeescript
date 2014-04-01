@@ -24,6 +24,8 @@ initWatchVal = ->
 
 Scope::$watch = (watchFn, listenerFn) ->
   @$$watchers.unshift {watchFn, listenerFn, last: initWatchVal}
+  @$$lastDirtyWatch = null
+  
   return this
 
 Scope::$digest = ->

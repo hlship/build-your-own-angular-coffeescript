@@ -151,6 +151,22 @@ describe "Scope", ->
       expect watchExecutions
         .toBe 301
 
+    it "allows for new watches to be added inside listener functions", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      scope
+        .$watch (scope) -> scope.aValue,
+        (newValue, oldValue, scope) ->
+          scope
+            .$watch (scope) -> scope.aValue,
+            (newValue, oldValue, scope) -> scope.counter++
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
 
 
 
