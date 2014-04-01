@@ -12,11 +12,21 @@ jshint globalstrict: true
 
 initWatchVal = ->
 
-@Scope::$watch = (watchFn, listenerFn) ->
-  @$$watchers.unshift {watchFn, listenerFn, last: initWatchVal}
+@Scope::$watch = (watchFn, listenerFn, valueEq) ->
+  @$$watchers.unshift {
+    watchFn: watchFn
+    listenerFn: listenerFn
+    valueEq: valueEq is true
+    last: initWatchVal}
   @$$lastDirtyWatch = null
 
   return this
+
+@Scope::$$areEqual = (newValue, oldValue, valueEq) ->
+  if valueEq
+    _.isEqual newValue, oldValue
+  else
+    newValue is oldValue
 
 @Scope::$digest = ->
 
@@ -33,11 +43,15 @@ initWatchVal = ->
     watcher = @$$watchers[length]
     newValue = watcher.watchFn this
     oldValue = watcher.last
+    valueEq = watcher.valueEq
 
-    unless newValue is oldValue
+    unless @$$areEqual newValue, oldValue, valueEq
       dirty = true
       @$$lastDirtyWatch = watcher
-      watcher.last = newValue
+      watcher.last = if valueEq
+                        _.cloneDeep newValue
+                     else
+                        newValue
       watcher.listenerFn newValue, oldValue, this
     else if @$$lastDirtyWatch is watcher
       return false
