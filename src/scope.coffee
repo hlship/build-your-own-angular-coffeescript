@@ -22,7 +22,7 @@ initWatchVal = ->
 
   return this
 
-@Scope::$$areEqual = (newValue, oldValue, valueEq) ->
+areEqual = (newValue, oldValue, valueEq) ->
   if valueEq
     _.isEqual newValue, oldValue
   else
@@ -45,7 +45,7 @@ initWatchVal = ->
     oldValue = watcher.last
     valueEq = watcher.valueEq
 
-    unless @$$areEqual newValue, oldValue, valueEq
+    unless areEqual newValue, oldValue, valueEq
       dirty = true
       @$$lastDirtyWatch = watcher
       watcher.last = if valueEq
