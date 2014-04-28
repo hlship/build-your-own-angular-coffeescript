@@ -6,7 +6,6 @@ module.exports = (grunt) ->
     coffee:
       compile:
         options:
-          bare: false
           sourceMap: true
         expand: true
         flatten: true 
@@ -17,14 +16,13 @@ module.exports = (grunt) ->
 
       compileTest:
         options:
-          bare: false
           sourceMap: true
         expand: true
         flatten: true
         cwd: "test"
         src: ["*.coffee"]
         dest: "out/test"
-        ext: "*.js"
+        ext: ".js"
 
     jasmine:
       unit:
