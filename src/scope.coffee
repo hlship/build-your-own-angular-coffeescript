@@ -63,3 +63,11 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$eval = (expr, locals) ->
   expr this, locals
+
+@Scope::$apply = (expr) ->
+  try
+    @$eval expr
+  finally
+    @$digest()
+    
+  

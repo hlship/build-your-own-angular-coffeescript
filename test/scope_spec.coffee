@@ -230,3 +230,29 @@ describe "Scope", ->
 
       expect scope.$eval ((scope, arg) -> scope.aValue + arg), 2
         .toBe 44
+
+  describe "$apply", ->
+
+    scope = null
+
+    beforeEach -> 
+      scope = new Scope()
+
+    it "executes $apply'ed function and starts the digest", ->
+
+      scope.aValue = "someValue"
+      scope.counter = 0
+
+      scope
+        .$watch (scope) -> scope.aValue,
+        (newValue, oldValue, scope) -> scope.counter++
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.$apply (scope) -> scope.aValue = "new value"
+
+      expect scope.counter
+        .toBe 2
