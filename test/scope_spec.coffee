@@ -318,3 +318,24 @@ describe "Scope", ->
 
       expect -> scope.$digest()
         .toThrow()
+
+    it "schedules a digest in $evalAsync", (done) ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      scope.$watch ((scope) -> scope.aValue),
+        (newValue, oldValue, scope) -> scope.counter++
+
+      scope.$evalAsync ->
+
+      # Since $evalAsync defers its digest, we don't expect
+      # to see it yet.
+      expect scope.counter
+        .toBe 0
+
+      setTimeout (->
+        expect scope.counter
+          .toBe 1
+        done()
+      ), 50 # ms later 

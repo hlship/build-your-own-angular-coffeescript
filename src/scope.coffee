@@ -98,6 +98,13 @@ areEqual = (newValue, oldValue, valueEq) ->
     @$digest()
 
 @Scope::$evalAsync = (expr) ->
+
+  # When there is no digest currently AND
+  # the queue is empty, then schedule a $digest for later.
+
+  if not (@$$phase or @$$asyncQueue.length)
+    setTimeout (=> @$digest()), 0
+
   @$$asyncQueue.push 
     scope: this
     expression: expr
