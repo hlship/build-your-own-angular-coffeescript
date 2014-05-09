@@ -5,19 +5,18 @@ global Scope: false
 
 describe "Scope", ->
 
-  it "can be constructed and used as an object", ->
-    scope = new Scope()
-    scope.aProperty = 1
+  scope = null
 
-    expect scope.aProperty
+  beforeEach -> scope = new Scope()
+
+  it "can be constructed and used as an object", ->
+    newScope = new Scope()
+    newScope.aProperty = 1
+
+    expect newScope.aProperty
       .toBe 1
 
   describe "$digest", ->
-
-    scope = null
-
-    beforeEach -> 
-      scope = new Scope()
 
     it "calls the listener function of a watch on first $digest", ->
 
@@ -212,11 +211,6 @@ describe "Scope", ->
 
   describe "$eval", -> 
 
-    scope = null
-
-    beforeEach -> 
-      scope = new Scope()
-
     it "executes $eval'ed function and returns result", ->
 
       scope.aValue = 42
@@ -232,11 +226,6 @@ describe "Scope", ->
         .toBe 44
 
   describe "$apply", ->
-
-    scope = null
-
-    beforeEach -> 
-      scope = new Scope()
 
     it "executes $apply'ed function and starts the digest", ->
 
