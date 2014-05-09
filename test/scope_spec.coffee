@@ -339,3 +339,46 @@ describe "Scope", ->
           .toBe 1
         done()
       ), 50 # ms later 
+
+  describe "$$postDigest", ->
+
+    it "runs a $$postDigest function after each digest", ->
+
+      scope.counter = 0
+
+      # Post digest function is NOT passed the scope.
+      scope.$$postDigest -> scope.counter++
+
+      expect scope.counter
+        .toBe 0
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.$digest()
+
+      # $$postDigest functions are invoked once then discarded
+
+      expect scope.counter
+        .toBe 1
+
+    it "does not include $$postDigest in the digest", ->
+
+      scope.aValue = "original"
+
+      scope.$$postDigest -> scope.aValue = "changed"
+
+      scope.$watch ((scope) -> scope.aValue),
+        (newValue, oldValue, scope) -> scope.watchedValue = newValue
+
+      scope.$digest()
+      expect scope.watchedValue
+        .toBe "original"
+
+      scope.$digest()
+      expect scope.watchedValue
+        .toBe "changed"
+
+

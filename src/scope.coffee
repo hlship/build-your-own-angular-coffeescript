@@ -7,6 +7,7 @@ jshint globalstrict: true
   @$$lastDirtyWatch = null
   @$$asyncQueue = []
   @$$phase = null
+  @$$postDigestQueue = []
 
   return
 
@@ -62,6 +63,11 @@ areEqual = (newValue, oldValue, valueEq) ->
   finally
     @$clearPhase()
 
+  while @$$postDigestQueue.length
+    callback = @$$postDigestQueue.shift()
+
+    callback()
+
   return
 
 @Scope::$$digestOnce = ->  
@@ -108,4 +114,7 @@ areEqual = (newValue, oldValue, valueEq) ->
   @$$asyncQueue.push 
     scope: this
     expression: expr
+
+@Scope::$$postDigest = (callback) ->
+  @$$postDigestQueue.push callback
     
