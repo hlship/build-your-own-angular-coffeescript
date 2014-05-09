@@ -5,6 +5,8 @@ jshint globalstrict: true
 @Scope = ->
   @$$watchers = []
   @$$lastDirtyWatch = null
+  @$$asyncQueue = []
+  return
 
 # This isn't called, its used as a kind of private substitute for undefined
 # to ensure that listener is invoked on the first digest. Functions always
@@ -33,11 +35,18 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$digest = ->
 
+  ttl = 10
   @$$lastDirtyWatch = null
-  for i in [1..10]
-    return this unless @$$digestOnce()
+  dirty = true
+  while dirty
+    while @$$asyncQueue.length
+      task = @$$asyncQueue.shift()
+      task.scope.$eval task.expression
 
-  throw Error "$digest did not settle after 10 iterations"
+    dirty = @$$digestOnce()
+    if dirty and ttl is 0
+      throw Error "$digest did not settle after 10 iterations"
+    ttl--
 
 @Scope::$$digestOnce = ->  
   dirty = false
@@ -69,5 +78,9 @@ areEqual = (newValue, oldValue, valueEq) ->
     @$eval expr
   finally
     @$digest()
+
+@Scope::$evalAsync = (expr) ->
+  @$$asyncQueue.push 
+    scope: this
+    expression: expr
     
-  

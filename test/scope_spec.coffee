@@ -7,7 +7,8 @@ describe "Scope", ->
 
   scope = null
 
-  beforeEach -> scope = new Scope()
+  beforeEach -> 
+    scope = new Scope()
 
   it "can be constructed and used as an object", ->
     newScope = new Scope()
@@ -245,3 +246,25 @@ describe "Scope", ->
 
       expect scope.counter
         .toBe 2
+
+  describe "$evalAsync", ->
+
+    it "executes $evalAsync'ed function later in the same cycle", ->
+
+      scope.aValue = [1, 2, 3]
+      scope.asyncEvaluated = false
+      scope.asyncEvaluatedImmediately = false
+
+      scope
+        .$watch (scope) -> scope.aValue,
+        (newValue, oldValue, scope) ->
+          scope.$evalAsync (scope) -> scope.asyncEvaluated = true
+          scope.asyncEvaluatedImmediately = scope.asyncEvaluated
+
+      scope.$digest()
+
+      expect scope.asyncEvaluated
+        .toBe true
+
+      expect scope.asyncEvaluatedImmediately
+        .toBe false
