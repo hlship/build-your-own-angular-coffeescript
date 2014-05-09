@@ -6,7 +6,17 @@ jshint globalstrict: true
   @$$watchers = []
   @$$lastDirtyWatch = null
   @$$asyncQueue = []
+  @$$phase = null
+
   return
+
+@Scope::$beginPhase = (phase) ->
+  if @$$phase
+    throw Error "can't start phase '#{phase}' when '#{@$$phase} is already in progress"
+
+  @$$phase = phase
+
+@Scope::$clearPhase = -> @$$phase = null
 
 # This isn't called, its used as a kind of private substitute for undefined
 # to ensure that listener is invoked on the first digest. Functions always
@@ -35,17 +45,23 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$digest = ->
 
-  ttl = 10
-  @$$lastDirtyWatch = null
-  busy = true
-  while busy
-    while @$$asyncQueue.length
-      task = @$$asyncQueue.shift()
-      task.scope.$eval task.expression
+  @$beginPhase "$digest"
 
-    busy = @$$digestOnce() or @$$asyncQueue.length
-    if busy and --ttl is 0
-      throw Error "$digest did not settle after 10 iterations"
+  try
+    ttl = 10
+    @$$lastDirtyWatch = null
+    busy = true
+    while busy
+      while @$$asyncQueue.length
+        task = @$$asyncQueue.shift()
+        task.scope.$eval task.expression
+
+      busy = @$$digestOnce() or @$$asyncQueue.length
+      if busy and --ttl is 0
+        throw Error "$digest did not settle after 10 iterations"
+  finally
+    @$clearPhase()
+
   return
 
 @Scope::$$digestOnce = ->  
@@ -75,8 +91,10 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$apply = (expr) ->
   try
+    @$beginPhase "$apply"
     @$eval expr
   finally
+    @$clearPhase()
     @$digest()
 
 @Scope::$evalAsync = (expr) ->

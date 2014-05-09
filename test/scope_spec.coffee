@@ -17,6 +17,29 @@ describe "Scope", ->
     expect newScope.aProperty
       .toBe 1
 
+  it "has a $$phase field whose value is the current digest phase", ->
+
+    scope.aValue = [1, 2, 3]
+    scope.phases = {}
+
+    scope.$watch ((scope) ->
+        scope.phases.inWatch = scope.$$phase
+        scope.aValue),
+      (newValue, oldValue, scope) ->
+        scope.phases.inListener = scope.$$phase
+
+    scope.$apply (scope) ->
+      scope.phases.inApply = scope.$$phase
+
+    expect scope.phases.inWatch
+      .toBe "$digest"
+
+    expect scope.phases.inListener
+      .toBe "$digest"
+
+    expect scope.phases.inApply
+      .toBe "$apply"
+
   describe "$digest", ->
 
     it "calls the listener function of a watch on first $digest", ->
