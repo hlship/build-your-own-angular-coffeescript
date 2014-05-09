@@ -5,6 +5,9 @@ global Scope: false
 
 describe "Scope", ->
 
+  watchAValue = (s) -> s.aValue
+  incrementCounter = (newValue, oldValue, s) -> s.counter++
+
   scope = null
 
   beforeEach -> 
@@ -68,13 +71,10 @@ describe "Scope", ->
 
     it "calls the listener function when the watched value changes", ->
 
-      scope.someValue = "a"
+      scope.aValue = "a"
       scope.counter = 0
 
-      watchFn = (scope) -> scope.someValue
-      listenerFn = (newValue, oldValue, scope) -> scope.counter++
-
-      scope.$watch watchFn, listenerFn
+      scope.$watch watchAValue, incrementCounter
 
       expect scope.counter
         .toBe 0
@@ -89,7 +89,7 @@ describe "Scope", ->
       expect scope.counter
         .toBe 1
       
-      scope.someValue = "b"
+      scope.aValue = "b"
 
       scope.$digest()
 
@@ -100,10 +100,7 @@ describe "Scope", ->
 
       scope.counter = 0
 
-      watchFn = (scope) -> scope.someValue
-      listenerFn = (newValue, oldValue, scope) -> scope.counter++
-
-      scope.$watch watchFn, listenerFn
+      scope.$watch watchAValue, incrementCounter
 
       scope.$digest()
 
@@ -179,12 +176,9 @@ describe "Scope", ->
       scope.aValue = "abc"
       scope.counter = 0
 
-      scope
-        .$watch (scope) -> scope.aValue,
+      scope.$watch watchAValue,
         (newValue, oldValue, scope) ->
-          scope
-            .$watch (scope) -> scope.aValue,
-            (newValue, oldValue, scope) -> scope.counter++
+          scope.$watch watchAValue, incrementCounter
 
       scope.$digest()
 
@@ -196,10 +190,7 @@ describe "Scope", ->
       scope.aValue = [1, 2, 3]
       scope.counter = 0
 
-      scope
-        .$watch (scope) -> scope.aValue,
-        (newValue, oldValue, scope) -> scope.counter++,
-        true
+      scope.$watch watchAValue, incrementCounter, true
 
       scope.$digest()
 
@@ -219,9 +210,7 @@ describe "Scope", ->
       scope.number = 0/0 # NaN
       scope.counter = 0
 
-      scope
-        .$watch (scope) -> scope.number,
-        (newValue, oldValue, scope) -> scope.counter++
+      scope.$watch ((scope) -> scope.number), incrementCounter
 
       scope.$digest()
 
@@ -240,8 +229,7 @@ describe "Scope", ->
 
       scope.$watch ((scope) -> throw Error "error"), ->
 
-      scope.$watch ((scope) -> scope.aValue),
-        (newValue, oldValue, scope) -> scope.counter++
+      scope.$watch watchAValue, incrementCounter
         
       scope.$digest()
       expect scope.counter
@@ -252,11 +240,52 @@ describe "Scope", ->
       scope.aValue = "abc"
       scope.counter = 0
 
-      scope.$watch ((scope) -> scope.aValue),
-        (newValue, oldValue, scope) -> throw Error "error"
+      scope.$watch watchAValue, (newValue, oldValue, scope) -> throw Error "error"
 
-      scope.$watch ((scope) -> scope.aValue),
-        (newValue, oldValue, scope) -> scope.counter++
+      scope.$watch watchAValue, incrementCounter
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 1
+
+    it "allows destroying a $watch via the returned removal function", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      destroyer = scope.$watch watchAValue, incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.aValue = "def"
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+      scope.aValue = "ghi"
+      destroyer()
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+    it "allows destroying a $watch during digest", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      # Problem: this works, but there's a logged error because watcher.listenerFn is undefined
+      destroy = scope.$watch -> 
+        destroy()
+        return
+
+      scope.$watch watchAValue, incrementCounter
 
       scope.$digest()
       expect scope.counter
@@ -285,9 +314,7 @@ describe "Scope", ->
       scope.aValue = "someValue"
       scope.counter = 0
 
-      scope
-        .$watch (scope) -> scope.aValue,
-        (newValue, oldValue, scope) -> scope.counter++
+      scope.$watch watchAValue, incrementCounter
 
       scope.$digest()
 
@@ -307,8 +334,7 @@ describe "Scope", ->
       scope.asyncEvaluated = false
       scope.asyncEvaluatedImmediately = false
 
-      scope
-        .$watch (scope) -> scope.aValue,
+      scope.$watch watchAValue,
         (newValue, oldValue, scope) ->
           scope.$evalAsync (scope) -> scope.asyncEvaluated = true
           scope.asyncEvaluatedImmediately = scope.asyncEvaluated
@@ -353,8 +379,7 @@ describe "Scope", ->
       scope.aValue = "abc"
       scope.counter = 0
 
-      scope.$watch ((scope) -> scope.aValue),
-        (newValue, oldValue, scope) -> scope.counter++
+      scope.$watch watchAValue, incrementCounter
 
       scope.$evalAsync ->
 
@@ -374,8 +399,7 @@ describe "Scope", ->
       scope.aValue = "abc"
       scope.counter = 0;
 
-      scope.$watch ((scope) -> scope.aValue),
-        (newValue, oldValue, scope) -> scope.counter++
+      scope.$watch watchAValue, incrementCounter
 
       scope.$evalAsync -> throw Error "error"
 
@@ -415,7 +439,7 @@ describe "Scope", ->
 
       scope.$$postDigest -> scope.aValue = "changed"
 
-      scope.$watch ((scope) -> scope.aValue),
+      scope.$watch watchAValue,
         (newValue, oldValue, scope) -> scope.watchedValue = newValue
 
       scope.$digest()

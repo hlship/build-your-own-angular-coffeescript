@@ -26,14 +26,19 @@ jshint globalstrict: true
 initWatchVal = ->
 
 @Scope::$watch = (watchFn, listenerFn, valueEq) ->
-  @$$watchers.unshift {
+  watcher =
     watchFn: watchFn
     listenerFn: listenerFn
     valueEq: valueEq is true
-    last: initWatchVal}
+    last: initWatchVal
+  
+  @$$watchers.unshift watcher
+
   @$$lastDirtyWatch = null
 
-  return this
+  =>
+    ix = @$$watchers.indexOf watcher
+    @$$watchers.splice ix, 1 if ix >= 0
 
 areEqual = (newValue, oldValue, valueEq) ->
   return _.isEqual newValue, oldValue if valueEq
