@@ -23,10 +23,13 @@ initWatchVal = ->
   return this
 
 areEqual = (newValue, oldValue, valueEq) ->
-  if valueEq
-    _.isEqual newValue, oldValue
-  else
-    newValue is oldValue
+  return _.isEqual newValue, oldValue if valueEq
+  
+  (newValue is oldValue) or
+  (typeof newValue is "number" and
+   typeof oldValue is "number" and
+   isNaN(newValue) and
+   isNaN(oldValue))
 
 @Scope::$digest = ->
 
