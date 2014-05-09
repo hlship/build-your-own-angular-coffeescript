@@ -55,7 +55,10 @@ areEqual = (newValue, oldValue, valueEq) ->
     while busy
       while @$$asyncQueue.length
         task = @$$asyncQueue.shift()
-        task.scope.$eval task.expression
+        try
+          task.scope.$eval task.expression
+        catch e
+          console.error e
 
       busy = @$$digestOnce() or @$$asyncQueue.length
       if busy and --ttl is 0
@@ -66,7 +69,10 @@ areEqual = (newValue, oldValue, valueEq) ->
   while @$$postDigestQueue.length
     callback = @$$postDigestQueue.shift()
 
-    callback()
+    try
+      callback()
+    catch e
+      console.error e
 
   return
 
@@ -74,21 +80,24 @@ areEqual = (newValue, oldValue, valueEq) ->
   dirty = false
   length = @$$watchers.length
   while length--
-    watcher = @$$watchers[length]
-    newValue = watcher.watchFn this
-    oldValue = watcher.last
-    valueEq = watcher.valueEq
+    try
+      watcher = @$$watchers[length]
+      newValue = watcher.watchFn this
+      oldValue = watcher.last
+      valueEq = watcher.valueEq
 
-    unless areEqual newValue, oldValue, valueEq
-      dirty = true
-      @$$lastDirtyWatch = watcher
-      watcher.last = if valueEq
-                        _.cloneDeep newValue
-                     else
-                        newValue
-      watcher.listenerFn newValue, oldValue, this
-    else if @$$lastDirtyWatch is watcher
-      return false
+      unless areEqual newValue, oldValue, valueEq
+        dirty = true
+        @$$lastDirtyWatch = watcher
+        watcher.last = if valueEq
+                          _.cloneDeep newValue
+                       else
+                          newValue
+        watcher.listenerFn newValue, oldValue, this
+      else if @$$lastDirtyWatch is watcher
+        return false
+    catch e
+      console.error e
 
   return dirty
 

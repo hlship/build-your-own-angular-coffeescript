@@ -233,6 +233,35 @@ describe "Scope", ->
       expect scope.counter
         .toBe 1
 
+    it "catches exceptions in watch functions, and continues", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      scope.$watch ((scope) -> throw Error "error"), ->
+
+      scope.$watch ((scope) -> scope.aValue),
+        (newValue, oldValue, scope) -> scope.counter++
+        
+      scope.$digest()
+      expect scope.counter
+        .toBe 1
+
+    it "catches exceptions in listener functions, and continues", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      scope.$watch ((scope) -> scope.aValue),
+        (newValue, oldValue, scope) -> throw Error "error"
+
+      scope.$watch ((scope) -> scope.aValue),
+        (newValue, oldValue, scope) -> scope.counter++
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 1
+
   describe "$eval", -> 
 
     it "executes $eval'ed function and returns result", ->
@@ -340,6 +369,22 @@ describe "Scope", ->
         done()
       ), 50 # ms later 
 
+    it "caches exceptions in $evalAsync", (done) ->
+
+      scope.aValue = "abc"
+      scope.counter = 0;
+
+      scope.$watch ((scope) -> scope.aValue),
+        (newValue, oldValue, scope) -> scope.counter++
+
+      scope.$evalAsync -> throw Error "error"
+
+      setTimeout (->
+        expect scope.counter
+          .toBe 1
+        done()
+      ), 50
+
   describe "$$postDigest", ->
 
     it "runs a $$postDigest function after each digest", ->
@@ -380,5 +425,17 @@ describe "Scope", ->
       scope.$digest()
       expect scope.watchedValue
         .toBe "changed"
+
+    it "catches exceptions in $$postDigest", ->
+
+      didRun = false
+
+      scope.$$postDigest -> throw Error "error"
+      scope.$$postDigest -> didRun = true
+
+      scope.$digest()
+
+      expect didRun
+        .toBe true
 
 
