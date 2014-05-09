@@ -268,3 +268,30 @@ describe "Scope", ->
 
       expect scope.asyncEvaluatedImmediately
         .toBe false
+
+    it "executes $evalAsync'ed functions added by watch functions", ->
+      scope.aValue = [1, 2, 3]
+      scope.asyncEvaluated = false
+
+      scope.$watch ((scope) ->
+          unless scope.asyncEvaluated
+            scope.$evalAsync (scope) -> scope.asyncEvaluated = true
+          return scope.aValue),
+        (newValue, oldValue, scope) ->
+
+      scope.$digest()
+
+      expect scope.asyncEvaluated
+        .toBe true
+
+    it "eventually halts $evalAsync added by watches", ->
+
+      scope.aValue = [1, 2, 3]
+
+      scope.$watch ((scope) ->
+        scope.$evalAsync ->
+        scope.aValue),
+        ->
+
+      expect -> scope.$digest()
+        .toThrow()

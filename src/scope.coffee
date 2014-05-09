@@ -37,16 +37,16 @@ areEqual = (newValue, oldValue, valueEq) ->
 
   ttl = 10
   @$$lastDirtyWatch = null
-  dirty = true
-  while dirty
+  busy = true
+  while busy
     while @$$asyncQueue.length
       task = @$$asyncQueue.shift()
       task.scope.$eval task.expression
 
-    dirty = @$$digestOnce()
-    if dirty and ttl is 0
+    busy = @$$digestOnce() or @$$asyncQueue.length
+    if busy and --ttl is 0
       throw Error "$digest did not settle after 10 iterations"
-    ttl--
+  return
 
 @Scope::$$digestOnce = ->  
   dirty = false
