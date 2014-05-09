@@ -12,7 +12,7 @@ describe "Scope", ->
     expect scope.aProperty
       .toBe 1
 
-  describe "digest", ->
+  describe "$digest", ->
 
     scope = null
 
@@ -210,4 +210,23 @@ describe "Scope", ->
       expect scope.counter
         .toBe 1
 
+  describe "$eval", -> 
 
+    scope = null
+
+    beforeEach -> 
+      scope = new Scope()
+
+    it "executes $eval'ed function and returns result", ->
+
+      scope.aValue = 42
+
+      expect scope.$eval (scope) -> scope.aValue
+        .toBe 42
+
+    it "passes the second $eval argument straight through", ->
+
+      scope.aValue = 42
+
+      expect scope.$eval ((scope, arg) -> scope.aValue + arg), 2
+        .toBe 44

@@ -60,3 +60,6 @@ areEqual = (newValue, oldValue, valueEq) ->
       return false
 
   return dirty
+
+@Scope::$eval = (expr, locals) ->
+  expr this, locals
