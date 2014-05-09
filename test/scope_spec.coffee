@@ -7,6 +7,7 @@ describe "Scope", ->
 
   watchAValue = (s) -> s.aValue
   incrementCounter = (newValue, oldValue, s) -> s.counter++
+  noop = ->
 
   scope = null
 
@@ -290,6 +291,38 @@ describe "Scope", ->
       scope.$digest()
       expect scope.counter
         .toBe 1
+
+    it "allows a $watch to dstroy another during digest", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      scope.$watch watchAValue, -> destroyWatch()
+
+      destroyWatch = scope.$watch noop, noop
+
+      scope.$watch watchAValue, incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+    it "allows destroying several $watches during digest", ->
+
+      scope.aValue = "abc"
+      scope.counter = 0
+
+      destroy1 = scope.$watch ->
+        destroy1()
+        destroy2()
+
+      destroy2 = scope.$watch watchAValue, incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 0
 
   describe "$eval", -> 
 

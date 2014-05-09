@@ -38,7 +38,9 @@ initWatchVal = ->
 
   =>
     ix = @$$watchers.indexOf watcher
-    @$$watchers.splice ix, 1 if ix >= 0
+    if ix >= 0
+      @$$watchers.splice ix, 1 
+      @$$lastDirtyWatch = null
 
 areEqual = (newValue, oldValue, valueEq) ->
   return _.isEqual newValue, oldValue if valueEq
@@ -87,20 +89,21 @@ areEqual = (newValue, oldValue, valueEq) ->
   while length--
     try
       watcher = @$$watchers[length]
-      newValue = watcher.watchFn this
-      oldValue = watcher.last
-      valueEq = watcher.valueEq
+      if watcher
+        newValue = watcher.watchFn this
+        oldValue = watcher.last
+        valueEq = watcher.valueEq
 
-      unless areEqual newValue, oldValue, valueEq
-        dirty = true
-        @$$lastDirtyWatch = watcher
-        watcher.last = if valueEq
-                          _.cloneDeep newValue
-                       else
-                          newValue
-        watcher.listenerFn newValue, oldValue, this
-      else if @$$lastDirtyWatch is watcher
-        return false
+        unless areEqual newValue, oldValue, valueEq
+          dirty = true
+          @$$lastDirtyWatch = watcher
+          watcher.last = if valueEq
+                            _.cloneDeep newValue
+                         else
+                            newValue
+          watcher.listenerFn newValue, oldValue, this
+        else if @$$lastDirtyWatch is watcher
+          return false
     catch e
       console.error e
 
