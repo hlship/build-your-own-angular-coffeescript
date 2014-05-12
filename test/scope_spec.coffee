@@ -143,6 +143,20 @@ describe "Scope", ->
       expect aaa.anotherValue
         .toBeUndefined()
 
+    it "shadows a parent's property with the same name", ->
+
+      parent = new Scope()
+      child = parent.$new()
+
+      parent.name = "Joe"
+      child.name = "Jill"
+
+      expect child.name
+        .toBe "Jill"
+
+      expect parent.name
+        .toBe "Joe"
+
   describe "$digest", ->
 
     it "calls the listener function of a watch on first $digest", ->
