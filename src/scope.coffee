@@ -16,7 +16,11 @@ jshint globalstrict: true
   ChildScope = ->
   ChildScope.prototype = this
 
-  new ChildScope()
+  child = new ChildScope()
+
+  child.$$watchers = []
+
+  return child
 
 @Scope::$beginPhase = (phase) ->
   if @$$phase

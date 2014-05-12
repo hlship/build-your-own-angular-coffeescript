@@ -437,6 +437,20 @@ describe "Scope", ->
       expect scope.counter
         .toBe 0
 
+    it "does not digest its parent(s)", ->
+
+      parent = new Scope()
+      child = parent.$new()
+
+      parent.aValue = "abc"
+
+      parent.$watch watchAValue, (newValue, oldValue, scope) -> scope.aValueWas = newValue
+
+      child.$digest()
+
+      expect child.aValueWas
+        .toBeUndefined()
+
   describe "$eval", -> 
 
     it "executes $eval'ed function and returns result", ->
