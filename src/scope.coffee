@@ -11,6 +11,13 @@ jshint globalstrict: true
 
   return
 
+@Scope::$new = ->
+
+  ChildScope = ->
+  ChildScope.prototype = this
+
+  new ChildScope()
+
 @Scope::$beginPhase = (phase) ->
   if @$$phase
     throw Error "can't start phase '#{phase}' when '#{@$$phase} is already in progress"

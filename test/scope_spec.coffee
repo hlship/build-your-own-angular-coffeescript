@@ -44,6 +44,105 @@ describe "Scope", ->
     expect scope.phases.inApply
       .toBe "$apply"
 
+  describe "$new", ->
+
+    it "inherits the parent's properties", ->
+
+      parent = new Scope()
+      parent.aValue = [1, 2, 3]
+
+      child = parent.$new()
+
+      expect child.aValue
+        .toEqual [1, 2, 3]
+
+    it "does not cause a parent to inherit the child's properties", ->
+
+       parent = new Scope()
+
+       child = parent.$new()
+
+       child.aValue = [1, 2, 3]
+
+       expect parent.aValue
+        .toBeUndefined()
+
+    it "inherits the parent's properties whenever they are defined", ->
+
+      parent = new Scope()
+
+      child = parent.$new()
+
+      parent.aValue = [1, 2, 3]
+
+      expect child.aValue
+        .toEqual [1, 2, 3]
+
+    it "can manipulate a parent scope's property", ->
+
+      parent = new Scope()
+
+      child = parent.$new()
+
+      parent.aValue = [1, 2, 3]
+
+      child.aValue.push 4
+
+      expect child.aValue
+        .toEqual [1, 2, 3, 4]
+
+      expect parent.aValue
+        .toEqual [1, 2, 3, 4]
+
+    it "can watch a property in the parent", ->
+
+      parent = new Scope()
+      child = parent.$new()
+
+      parent.aValue = [1, 2, 3]
+
+      child.counter = 0
+
+      child.$watch watchAValue, incrementCounter, true
+
+      child.$digest()
+
+      expect child.counter
+        .toBe 1
+
+      parent.aValue.push 4
+
+      child.$digest()
+
+      expect child.counter
+        .toBe 2
+
+    it "can be nested at any depth", ->
+
+      a = new Scope()
+      aa = a.$new()
+      aaa = aa.$new()
+      aab = aa.$new()
+      ab = a.$new()
+      abb = ab.$new()
+
+      a.value = 1
+
+      for scope in [aa, aaa, aab, ab, abb]
+        expect scope.value
+          .toBe 1
+
+      ab.anotherValue = 2
+
+      expect abb.anotherValue
+        .toBe 2
+
+      expect aa.anotherValue
+        .toBeUndefined()
+
+      expect aaa.anotherValue
+        .toBeUndefined()
+
   describe "$digest", ->
 
     it "calls the listener function of a watch on first $digest", ->
