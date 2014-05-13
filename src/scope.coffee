@@ -2,14 +2,21 @@
 jshint globalstrict: true
 ###
 
+initScope = (scope) ->
+
+  scope.$$watchers = []
+  scope.$$children = []
+
+  return scope
+
+
 @Scope = ->
-  @$$watchers = []
   @$$lastDirtyWatch = null
   @$$asyncQueue = []
   @$$phase = null
   @$$postDigestQueue = []
 
-  return
+  initScope this
 
 @Scope::$new = ->
 
@@ -18,9 +25,9 @@ jshint globalstrict: true
 
   child = new ChildScope()
 
-  child.$$watchers = []
+  @$$children.push child
 
-  return child
+  initScope child
 
 @Scope::$beginPhase = (phase) ->
   if @$$phase

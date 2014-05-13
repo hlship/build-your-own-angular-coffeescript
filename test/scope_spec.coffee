@@ -157,6 +157,23 @@ describe "Scope", ->
       expect parent.name
         .toBe "Joe"
 
+    it "keeps a record of its children", ->
+
+      parent = new Scope()
+
+      child1 = parent.$new()
+      child2 = parent.$new()
+      child2_1 = child2.$new()
+
+      expect parent.$$children
+        .toEqual [child1, child2]
+
+      expect child1.$$children.length
+        .toBe 0
+
+      expect child2.$$children
+        .toEqual [child2_1]
+
   describe "$digest", ->
 
     it "calls the listener function of a watch on first $digest", ->
