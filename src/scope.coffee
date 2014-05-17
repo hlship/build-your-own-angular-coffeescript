@@ -212,10 +212,17 @@ areEqual = (newValue, oldValue, valueEq) ->
             changeCount++
             oldValue = []
 
-
           if newValue.length isnt oldValue.length
             changeCount++
             oldValue.length = newValue.length
+
+          # Now look for differences between the two arrays
+
+          _.forEach newValue, (newItem, i) ->
+
+            if newItem isnt oldValue[i]
+              changeCount++
+              oldValue[i] = newItem
 
         else
 
