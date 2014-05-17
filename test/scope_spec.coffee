@@ -468,6 +468,20 @@ describe "Scope", ->
       expect child.aValueWas
         .toBeUndefined()
 
+    it "digests its children", ->
+
+      parent = new Scope()
+      child = parent.$new()
+
+      parent.aValue = "abc"
+
+      child.$watch watchAValue, (newValue, oldValue, scope) -> scope.aValueWas = newValue
+
+      parent.$digest()
+
+      expect child.aValueWas
+        .toBe "abc"
+
   describe "$eval", -> 
 
     it "executes $eval'ed function and returns result", ->

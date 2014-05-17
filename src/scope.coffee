@@ -29,6 +29,14 @@ initScope = (scope) ->
 
   initScope child
 
+
+@Scope::$$everyScope = (fn) ->
+
+  if fn this
+    @$$children.every (child) -> child.$$everyScope fn
+  else
+    false
+
 @Scope::$beginPhase = (phase) ->
   if @$$phase
     throw Error "can't start phase '#{phase}' when '#{@$$phase} is already in progress"
@@ -103,29 +111,37 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$$digestOnce = ->  
   dirty = false
-  length = @$$watchers.length
-  while length--
-    try
-      watcher = @$$watchers[length]
-      if watcher
-        newValue = watcher.watchFn this
-        oldValue = watcher.last
-        valueEq = watcher.valueEq
+  
+  @$$everyScope (scope) =>
 
-        unless areEqual newValue, oldValue, valueEq
-          dirty = true
-          @$$lastDirtyWatch = watcher
-          watcher.last = if valueEq
-                            _.cloneDeep newValue
-                         else
-                            newValue
-          watcher.listenerFn newValue, oldValue, this
-        else if @$$lastDirtyWatch is watcher
-          return false
-    catch e
-      console.error e
+    # This is ugly and hard to follow in both CoffeeScript and JavaScript.
+    _.forEachRight scope.$$watchers, (watcher) =>
+      try
+        if watcher
+          newValue = watcher.watchFn scope
+          oldValue = watcher.last
+          valueEq = watcher.valueEq
 
-  return dirty
+          unless areEqual newValue, oldValue, valueEq
+            @$$lastDirtyWatch = watcher
+            watcher.last = if valueEq
+                              _.cloneDeep newValue
+                           else
+                              newValue
+            watcher.listenerFn newValue, oldValue, scope
+            dirty = true
+          else if @$$lastDirtyWatch is watcher
+            dirty = false
+            return false
+            
+          return
+      catch e
+        console.error e
+        return
+
+    true
+
+  dirty
 
 @Scope::$eval = (expr, locals) ->
   expr this, locals
