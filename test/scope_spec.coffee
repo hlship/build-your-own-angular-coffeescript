@@ -3,11 +3,20 @@ jshint globalstrict: true
 global Scope: false
 ###
 
+
+
 describe "Scope", ->
 
   watchAValue = (s) -> s.aValue
   incrementCounter = (newValue, oldValue, s) -> s.counter++
+  storeAValueWas = (newValue, oldValue, s)-> s.aValueWas = newValue
   noop = ->
+
+  later = (done, f) ->
+    setTimeout (->
+      f()
+      done()
+    ), 50
 
   scope = null
 
@@ -461,7 +470,7 @@ describe "Scope", ->
 
       parent.aValue = "abc"
 
-      parent.$watch watchAValue, (newValue, oldValue, scope) -> scope.aValueWas = newValue
+      parent.$watch watchAValue, storeAValueWas
 
       child.$digest()
 
@@ -475,7 +484,7 @@ describe "Scope", ->
 
       parent.aValue = "abc"
 
-      child.$watch watchAValue, (newValue, oldValue, scope) -> scope.aValueWas = newValue
+      child.$watch watchAValue, storeAValueWas
 
       parent.$digest()
 
@@ -532,8 +541,6 @@ describe "Scope", ->
 
       expect parent.counter
         .toBe 1
-
-
 
   describe "$evalAsync", ->
 
@@ -597,11 +604,9 @@ describe "Scope", ->
       expect scope.counter
         .toBe 0
 
-      setTimeout (->
+      later done, ->
         expect scope.counter
           .toBe 1
-        done()
-      ), 50 # ms later 
 
     it "schedules a digest from root in $evalAsync", (done) ->
 
@@ -634,11 +639,9 @@ describe "Scope", ->
 
       scope.$evalAsync -> throw Error "error"
 
-      setTimeout (->
+      later done, ->
         expect scope.counter
           .toBe 1
-        done()
-      ), 50
 
   describe "$$postDigest", ->
 
@@ -692,5 +695,103 @@ describe "Scope", ->
 
       expect didRun
         .toBe true
+
+  describe "isolated scopes", ->
+
+    it "does not have access to the parent attributes when isolated", ->
+
+      parent = new Scope()
+      child = parent.$new true
+
+      parent.aValue = "abc"
+
+      expect child.aValue
+        .toBe undefined
+
+    it "cannot watchparent attributes when isolated", ->
+
+      parent = new Scope()
+      child = parent.$new true
+
+      parent.aValue = "abc"
+
+      child.$watch watchAValue, storeAValueWas
+
+      child.$digest()
+
+      expect child.aValueWas
+        .toBe undefined
+
+    it "digests its isolated children", -> 
+
+      parent = new Scope()
+      child = parent.$new true
+
+      child.aValue = "abc"
+
+      child.$watch watchAValue, storeAValueWas
+
+      parent.$digest()
+
+      expect child.aValueWas
+        .toBe "abc"
+
+    it "digests from root on $apply when isolated", ->
+
+      parent = new Scope()
+      child = parent.$new true
+      child2 = child.$new()
+
+      parent.aValue = "abc"
+      parent.counter = 0
+
+      parent.$watch watchAValue, incrementCounter
+
+      child2.$apply ->
+
+      expect parent.counter
+        .toBe 1
+
+    it "schedules a digest from root on $evalAsync when isolated", (done) ->
+
+      parent = new Scope()
+      child = parent.$new true
+      child2 = child.$new()
+
+      parent.aValue = "abc"
+      parent.counter = 0
+
+      parent.$watch watchAValue, incrementCounter
+
+      child2.$evalAsync ->
+
+      later done, ->
+        expect parent.counter
+          .toBe 1
+
+    it "executes $evalAsync functions on isolated scopes", (done) ->
+
+      parent = new Scope()
+      child = parent.$new true
+
+      child.$evalAsync (scope) -> scope.didEvalAsync = true
+
+      later done, ->
+        expect child.didEvalAsync
+          .toBe true
+
+    it "executes $$postDigest functions on isolated scopes", ->
+
+      parent = new Scope()
+      child = parent.$new true
+
+      child.$$postDigest -> child.didPostDigest = true
+
+      parent.$digest()
+
+      expect child.didPostDigest
+        .toBe true
+
+
 
 

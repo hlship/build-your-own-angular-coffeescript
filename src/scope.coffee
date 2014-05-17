@@ -19,12 +19,24 @@ initScope = (scope) ->
 
   initScope this
 
-@Scope::$new = ->
+@Scope::$new = (isolated) ->
 
-  ChildScope = ->
-  ChildScope.prototype = this
+  child = null
 
-  child = new ChildScope()
+  if isolated
+    child = new Scope()
+    # My take on this, is that Scope should be split into two parts, with
+    # a link to all this data shared between parents and isolated children.
+    # So that there's only one property to shadow into a isolated scope.
+    child.$$root = @$$root
+    child.$$lastDirtyWatch = @$$lastDirtyWatch
+    child.$$asyncQueue = @$$asyncQueue
+    child.$$postDigestQueue = @$$postDigestQueue
+  else
+    ChildScope = ->
+    ChildScope.prototype = this
+
+    child = new ChildScope()
 
   @$$children.push child
 
