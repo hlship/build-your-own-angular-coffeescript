@@ -824,6 +824,68 @@ describe "Scope", ->
       expect child.counter
         .toBe 2
 
+  describe "$watchCollection", ->
 
+    scope = null
+
+    beforeEach -> scope = new Scope()
+
+    it "works as $watch for a non-collection", ->
+
+      newValueProvided = null
+      oldValueProvided = null
+
+      scope.aValue = 42
+      scope.counter = 0
+
+      scope.$watchCollection watchAValue, (newValue, oldValue, scope) ->
+
+        newValueProvided = newValue
+        oldValueProvided = oldValue
+        scope.counter++
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      expect newValueProvided
+        .toBe scope.aValue
+
+      expect oldValueProvided
+        .toBe scope.aValue
+
+      scope.aValue = 43
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+    it "notices when the value becomes an array", ->
+
+      scope.counter = 0
+
+      scope.$watchCollection ((scope) -> scope.arr), incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.arr = [1, 2, 3]
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+      
+      expect scope.counter
+        .toBe 2
 
 

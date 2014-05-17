@@ -193,4 +193,41 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$$postDigest = (callback) ->
   @$$postDigestQueue.push callback
-    
+
+@Scope::$watchCollection = (watchFn, listenerFn) ->
+
+  newValue = null
+  oldValue = null
+  changeCount = 0
+
+  internalWatchFn = (scope) ->
+
+    newValue = watchFn scope
+
+    if _.isObject newValue
+        if _.isArray newValue
+
+          if not _.isArray oldValue
+            changeCount++
+            oldValue = []
+        else
+
+    else
+
+      # Non-collection value
+      if newValue isnt oldValue
+        changeCount++
+
+    # BYOA mentions how this is Angular's current behavior, even though in
+    # conflicts with both expectations and documentation.
+
+    oldValue = newValue
+
+    return changeCount
+
+
+  internalListenerFn = =>
+
+    listenerFn newValue, oldValue, this
+
+  @$watch internalWatchFn, internalListenerFn
