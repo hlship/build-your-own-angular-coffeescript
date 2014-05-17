@@ -40,7 +40,19 @@ initScope = (scope) ->
 
   @$$children.push child
 
+  child.$parent = this
+
   initScope child
+
+@Scope::$destroy = ->
+
+  return if this is @$$root
+
+  siblings = @$parent.$$children
+
+  ix = siblings.indexOf this
+
+  siblings.splice ix, 1 if ix >= 0
 
 
 @Scope::$$everyScope = (fn) ->
