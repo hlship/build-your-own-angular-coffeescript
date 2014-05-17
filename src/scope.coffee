@@ -205,11 +205,18 @@ areEqual = (newValue, oldValue, valueEq) ->
     newValue = watchFn scope
 
     if _.isObject newValue
+
         if _.isArray newValue
 
           if not _.isArray oldValue
             changeCount++
             oldValue = []
+
+
+          if newValue.length isnt oldValue.length
+            changeCount++
+            oldValue.length = newValue.length
+
         else
 
     else
@@ -218,10 +225,10 @@ areEqual = (newValue, oldValue, valueEq) ->
       if newValue isnt oldValue
         changeCount++
 
-    # BYOA mentions how this is Angular's current behavior, even though in
-    # conflicts with both expectations and documentation.
+      # BYOA mentions how this is Angular's current behavior, even though in
+      # conflicts with both expectations and documentation.
 
-    oldValue = newValue
+      oldValue = newValue
 
     return changeCount
 

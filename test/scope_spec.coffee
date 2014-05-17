@@ -830,6 +830,8 @@ describe "Scope", ->
 
     beforeEach -> scope = new Scope()
 
+    watchArr = (scope) -> scope.arr
+
     it "works as $watch for a non-collection", ->
 
       newValueProvided = null
@@ -870,7 +872,7 @@ describe "Scope", ->
 
       scope.counter = 0
 
-      scope.$watchCollection ((scope) -> scope.arr), incrementCounter
+      scope.$watchCollection watchArr, incrementCounter
 
       scope.$digest()
 
@@ -878,6 +880,29 @@ describe "Scope", ->
         .toBe 1
 
       scope.arr = [1, 2, 3]
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+    it "notices when an item is added to an array", ->
+
+      scope.arr = [1, 2, 3]
+      scope.counter = 0
+
+      scope.$watchCollection watchArr, incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.arr.shift()
       scope.$digest()
 
       expect scope.counter
