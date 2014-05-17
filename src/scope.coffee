@@ -11,6 +11,7 @@ initScope = (scope) ->
 
 
 @Scope = ->
+  @$$root = this
   @$$lastDirtyWatch = null
   @$$asyncQueue = []
   @$$phase = null
@@ -123,14 +124,14 @@ areEqual = (newValue, oldValue, valueEq) ->
           valueEq = watcher.valueEq
 
           unless areEqual newValue, oldValue, valueEq
-            @$$lastDirtyWatch = watcher
+            @$$root.$$lastDirtyWatch = watcher
             watcher.last = if valueEq
                               _.cloneDeep newValue
                            else
                               newValue
             watcher.listenerFn newValue, oldValue, scope
             dirty = true
-          else if @$$lastDirtyWatch is watcher
+          else if @$$root.$$lastDirtyWatch is watcher
             dirty = false
             return false
             
@@ -152,7 +153,7 @@ areEqual = (newValue, oldValue, valueEq) ->
     @$eval expr
   finally
     @$clearPhase()
-    @$digest()
+    @$$root.$digest()
 
 @Scope::$evalAsync = (expr) ->
 
@@ -160,7 +161,7 @@ areEqual = (newValue, oldValue, valueEq) ->
   # the queue is empty, then schedule a $digest for later.
 
   if not (@$$phase or @$$asyncQueue.length)
-    setTimeout (=> @$digest()), 0
+    setTimeout (=> @$$root.$digest()), 0
 
   @$$asyncQueue.push 
     scope: this

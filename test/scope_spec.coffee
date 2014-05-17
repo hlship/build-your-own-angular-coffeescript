@@ -517,6 +517,24 @@ describe "Scope", ->
       expect scope.counter
         .toBe 2
 
+    it "digests from root on $apply", ->
+
+      parent = new Scope()
+      child = parent.$new()
+      child2 = child.$new()
+
+      parent.aValue = "abc"
+      parent.counter = 0
+
+      parent.$watch watchAValue, incrementCounter
+
+      child2.$apply ->
+
+      expect parent.counter
+        .toBe 1
+
+
+
   describe "$evalAsync", ->
 
     it "executes $evalAsync'ed function later in the same cycle", ->
@@ -584,6 +602,28 @@ describe "Scope", ->
           .toBe 1
         done()
       ), 50 # ms later 
+
+    it "schedules a digest from root in $evalAsync", (done) ->
+
+      parent = new Scope()
+      child = parent.$new()
+      child2 = child.$new()
+
+      parent.aValue = "abc"
+      parent.counter = 0
+
+      parent.$watch watchAValue, incrementCounter
+
+      child2.$evalAsync ->
+
+      setTimeout (->
+
+        expect parent.counter
+          .toBe 1
+
+        done()
+
+        ), 50
 
     it "caches exceptions in $evalAsync", (done) ->
 
