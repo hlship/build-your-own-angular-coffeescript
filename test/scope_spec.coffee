@@ -35,11 +35,11 @@ describe "Scope", ->
     scope.aValue = [1, 2, 3]
     scope.phases = {}
 
-    scope.$watch ((scope) ->
-        scope.phases.inWatch = scope.$$phase
-        scope.aValue),
-      (newValue, oldValue, scope) ->
-        scope.phases.inListener = scope.$$phase
+    scope.$watch ((s) ->
+        s.phases.inWatch = scope.$$phase
+        s.aValue),
+      (newValue, oldValue, s) ->
+        s.phases.inListener = s.$$phase
 
     scope.$apply (scope) ->
       scope.phases.inApply = scope.$$phase
@@ -251,15 +251,15 @@ describe "Scope", ->
 
       scope.name ="Jane"
 
-      scope.$watch ((scope) -> scope.name),
-        (newValue, oldValue, scope) ->
+      scope.$watch ((s) -> s.name),
+        (newValue, oldValue, s) ->
           if newValue
-            scope.nameUpper = newValue.toUpperCase()
+            s.nameUpper = newValue.toUpperCase()
 
-      scope.$watch ((scope) -> scope.nameUpper),
-        (newValue, oldValue, scope) ->
+      scope.$watch ((s) -> s.nameUpper),
+        (newValue, oldValue, s) ->
           if newValue
-            scope.initial = newValue.substring(0, 1) + "."
+            s.initial = newValue.substring(0, 1) + "."
 
       scope.$digest()
 
@@ -277,11 +277,11 @@ describe "Scope", ->
       scope.counterA = 0
       scope.counterB = 0
 
-      scope.$watch ((scope) -> scope.counterA),
-        (newValue, oldValue, scope) -> scope.counterB++
+      scope.$watch ((s) -> s.counterA),
+        (newValue, oldValue, s) -> s.counterB++
 
-      scope.$watch ((scope) -> scope.counterB),
-        (newValue, oldValue, scope) -> scope.counterA++
+      scope.$watch ((s) -> s.counterB),
+        (newValue, oldValue, s) -> s.counterA++
 
       expect (-> scope.$digest())
         .toThrow()
@@ -294,10 +294,10 @@ describe "Scope", ->
 
       for i in [0..99]
           do (i) ->
-            scope.$watch ((scope) -> 
+            scope.$watch ((s) -> 
                 watchExecutions++
-                scope.array[i]),
-            (newValue, oldValue, scope) ->
+                s.array[i]),
+            (newValue, oldValue, s) ->
 
       scope.$digest()
 
@@ -317,8 +317,8 @@ describe "Scope", ->
       scope.counter = 0
 
       scope.$watch watchAValue,
-        (newValue, oldValue, scope) ->
-          scope.$watch watchAValue, incrementCounter
+        (newValue, oldValue, s) ->
+          s.$watch watchAValue, incrementCounter
 
       scope.$digest()
 
@@ -350,7 +350,7 @@ describe "Scope", ->
       scope.number = 0/0 # NaN
       scope.counter = 0
 
-      scope.$watch ((scope) -> scope.number), incrementCounter
+      scope.$watch ((s) -> s.number), incrementCounter
 
       scope.$digest()
 
@@ -367,7 +367,7 @@ describe "Scope", ->
       scope.aValue = "abc"
       scope.counter = 0
 
-      scope.$watch ((scope) -> throw Error "error"), ->
+      scope.$watch ((s) -> throw Error "error"), ->
 
       scope.$watch watchAValue, incrementCounter
         
@@ -380,7 +380,7 @@ describe "Scope", ->
       scope.aValue = "abc"
       scope.counter = 0
 
-      scope.$watch watchAValue, (newValue, oldValue, scope) -> throw Error "error"
+      scope.$watch watchAValue, (newValue, oldValue, s) -> throw Error "error"
 
       scope.$watch watchAValue, incrementCounter
 
@@ -521,7 +521,7 @@ describe "Scope", ->
       expect scope.counter
         .toBe 1
 
-      scope.$apply (scope) -> scope.aValue = "new value"
+      scope.$apply (s) -> s.aValue = "new value"
 
       expect scope.counter
         .toBe 2
@@ -551,9 +551,9 @@ describe "Scope", ->
       scope.asyncEvaluatedImmediately = false
 
       scope.$watch watchAValue,
-        (newValue, oldValue, scope) ->
-          scope.$evalAsync (scope) -> scope.asyncEvaluated = true
-          scope.asyncEvaluatedImmediately = scope.asyncEvaluated
+        (newValue, oldValue, s) ->
+          scope.$evalAsync (s) -> s.asyncEvaluated = true
+          scope.asyncEvaluatedImmediately = s.asyncEvaluated
 
       scope.$digest()
 
@@ -567,11 +567,11 @@ describe "Scope", ->
       scope.aValue = [1, 2, 3]
       scope.asyncEvaluated = false
 
-      scope.$watch ((scope) ->
-          unless scope.asyncEvaluated
-            scope.$evalAsync (scope) -> scope.asyncEvaluated = true
-          return scope.aValue),
-        (newValue, oldValue, scope) ->
+      scope.$watch ((s) ->
+          unless s.asyncEvaluated
+            s.$evalAsync (_s) -> _s.asyncEvaluated = true
+          return s.aValue),
+        (newValue, oldValue, s) ->
 
       scope.$digest()
 
@@ -582,9 +582,9 @@ describe "Scope", ->
 
       scope.aValue = [1, 2, 3]
 
-      scope.$watch ((scope) ->
-        scope.$evalAsync ->
-        scope.aValue),
+      scope.$watch ((s) ->
+        s.$evalAsync ->
+        s.aValue),
         ->
 
       expect -> scope.$digest()
@@ -674,7 +674,7 @@ describe "Scope", ->
       scope.$$postDigest -> scope.aValue = "changed"
 
       scope.$watch watchAValue,
-        (newValue, oldValue, scope) -> scope.watchedValue = newValue
+        (newValue, oldValue, s) -> s.watchedValue = newValue
 
       scope.$digest()
       expect scope.watchedValue
@@ -830,7 +830,8 @@ describe "Scope", ->
 
     beforeEach -> scope = new Scope()
 
-    watchArr = (scope) -> scope.arr
+    watchArr = (s) -> s.arr
+    watchObj = (s) -> s.obj
 
     it "works as $watch for a non-collection", ->
 
@@ -1001,4 +1002,6 @@ describe "Scope", ->
       scope.$digest()
       expect scope.counter
         .toBe 2
+
+
 
