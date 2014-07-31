@@ -23,7 +23,16 @@ describe "Scope", ->
   beforeEach -> 
     scope = new Scope()
 
+  # Most of the tests do something to the scope, run $digest,
+  # then check the counter (via the incrementCounter callback).
+  expectCounterAfterDigest = (expectedCount) ->
+    scope.$digest()
+
+    expect scope.counter
+      .toBe expectedCount
+
   it "can be constructed and used as an object", ->
+
     newScope = new Scope()
     newScope.aProperty = 1
 
@@ -219,22 +228,13 @@ describe "Scope", ->
       expect scope.counter
         .toBe 0
 
-      scope.$digest()
+      expectCounterAfterDigest 1
 
-      expect scope.counter
-        .toBe 1
-
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
       
       scope.aValue = "b"
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "calls the listener when the watch value is initially undefined", ->
 
@@ -242,10 +242,7 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "triggers chained watchers in the same digest", ->
 
@@ -320,10 +317,7 @@ describe "Scope", ->
         (newValue, oldValue, s) ->
           s.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "compares based on value if enabled", ->
 
@@ -332,19 +326,14 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter, true
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       # This wouldn't be a change for identity comparison (its the same Array)
 
       scope.aValue.push 4
 
-      scope.$digest()
+      expectCounterAfterDigest 2
 
-      expect scope.counter
-        .toBe 2
 
     it "correctly handles NaNs", ->
       scope.number = 0/0 # NaN
@@ -352,15 +341,9 @@ describe "Scope", ->
 
       scope.$watch ((s) -> s.number), incrementCounter
 
-      scope.$digest()
+      expectCounterAfterDigest 1
 
-      expect scope.counter
-        .toBe 1
-
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "catches exceptions in watch functions, and continues", ->
 
@@ -371,9 +354,8 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter
         
-      scope.$digest()
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
+
 
     it "catches exceptions in listener functions, and continues", ->
 
@@ -384,9 +366,7 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "allows destroying a $watch via the returned removal function", ->
 
@@ -395,25 +375,17 @@ describe "Scope", ->
 
       destroyer = scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.aValue = "def"
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
       scope.aValue = "ghi"
       destroyer()
 
-      scope.$digest()
+      expectCounterAfterDigest 2
 
-      expect scope.counter
-        .toBe 2
 
     it "allows destroying a $watch during digest", ->
 
@@ -427,9 +399,7 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "allows a $watch to dstroy another during digest", ->
 
@@ -442,10 +412,7 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "allows destroying several $watches during digest", ->
 
@@ -458,10 +425,7 @@ describe "Scope", ->
 
       destroy2 = scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 0
+      expectCounterAfterDigest 0
 
     it "does not digest its parent(s)", ->
 
@@ -516,10 +480,7 @@ describe "Scope", ->
 
       scope.$watch watchAValue, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.$apply (s) -> s.aValue = "new value"
 
@@ -655,17 +616,10 @@ describe "Scope", ->
       expect scope.counter
         .toBe 0
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
-
-      scope.$digest()
+      expectCounterAfterDigest 1
 
       # $$postDigest functions are invoked once then discarded
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
     it "does not include $$postDigest in the digest", ->
 
@@ -847,10 +801,7 @@ describe "Scope", ->
         oldValueProvided = oldValue
         scope.counter++
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       expect newValueProvided
         .toBe scope.aValue
@@ -859,15 +810,10 @@ describe "Scope", ->
         .toBe scope.aValue
 
       scope.aValue = 43
-      scope.$digest()
 
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices when the value becomes an array", ->
 
@@ -875,21 +821,13 @@ describe "Scope", ->
 
       scope.$watchCollection watchArr, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.arr = [1, 2, 3]
-      scope.$digest()
 
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices when an item is added to an array", ->
 
@@ -898,21 +836,13 @@ describe "Scope", ->
 
       scope.$watchCollection watchArr, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.arr.shift()
-      scope.$digest()
 
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices when an item is removed from an array", ->
 
@@ -921,20 +851,14 @@ describe "Scope", ->
 
       scope.$watchCollection watchArr, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.arr.shift()
       scope.$digest()
 
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices an item replaced in an array", ->
 
@@ -943,21 +867,13 @@ describe "Scope", ->
 
       scope.$watchCollection watchArr, incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.arr[1] = 42
-      scope.$digest()
 
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices items reordered in an array", ->
 
@@ -966,19 +882,13 @@ describe "Scope", ->
 
       scope.$watchCollection watchArr, incrementCounter
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.arr.sort()
-      scope.$digest()
 
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices an item replaced in an arguments object", ->
 
@@ -988,20 +898,13 @@ describe "Scope", ->
 
       scope.$watchCollection ((s) -> s.arrayLike), incrementCounter
 
-      scope.$digest()
-
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.arrayLike[1] = 42
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
     it "notices when the value becomes an object", ->
 
@@ -1009,19 +912,13 @@ describe "Scope", ->
 
       scope.$watchCollection watchObj, incrementCounter
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 1
+      expectCounterAfterDigest 1
 
       scope.obj = {a: 1}
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
-      scope.$digest()
-      expect scope.counter
-        .toBe 2
+      expectCounterAfterDigest 2
 
 
 
