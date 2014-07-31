@@ -913,6 +913,28 @@ describe "Scope", ->
       expect scope.counter
         .toBe 2
 
+    it "notices when an item is removed from an array", ->
+
+      scope.arr = [1, 2, 3]
+      scope.counter = 0
+
+      scope.$watchCollection watchArr, incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.arr.shift()
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 2
+
     it "notices an item replaced in an array", ->
 
       scope.arr = [1, 2, 3]
