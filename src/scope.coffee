@@ -227,7 +227,9 @@ areEqual = (newValue, oldValue, valueEq) ->
               oldValue[i] = newItem
 
         else
-
+          if (not _.isObject oldValue) or (_.isArrayLike oldValue)
+            changeCount++
+            oldValue = {}
     else
 
       # Non-collection value

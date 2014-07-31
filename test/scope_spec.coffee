@@ -1003,5 +1003,25 @@ describe "Scope", ->
       expect scope.counter
         .toBe 2
 
+    it "notices when the value becomes an object", ->
+
+      scope.counter = 0
+
+      scope.$watchCollection watchObj, incrementCounter
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 1
+
+      scope.obj = {a: 1}
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 2
+
 
 
