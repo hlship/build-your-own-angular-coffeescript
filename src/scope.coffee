@@ -202,11 +202,13 @@ areEqual = (newValue, oldValue, valueEq) ->
 
   internalWatchFn = (scope) ->
 
+    console.log _.arrayLike
+
     newValue = watchFn scope
 
     if _.isObject newValue
 
-        if _.isArray newValue
+        if _.isArrayLike newValue
 
           if not _.isArray oldValue
             changeCount++

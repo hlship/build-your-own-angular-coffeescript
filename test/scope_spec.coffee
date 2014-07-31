@@ -978,5 +978,27 @@ describe "Scope", ->
       scope.$digest()
       expect scope.counter
         .toBe 2
+
+    it "notices an item replaced in an arguments object", ->
+
+      (-> scope.arrayLike = arguments) 1, 2, 3
         
+      scope.counter = 0
+
+      scope.$watchCollection ((s) -> s.arrayLike), incrementCounter
+
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 1
+
+      scope.arrayLike[1] = 42
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 2
 
