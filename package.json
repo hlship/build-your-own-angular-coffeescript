@@ -2,10 +2,9 @@
   "name": "my-own-angular-coffeescript",
   "version": "0.1.0",
   "devDependencies": {
-    "grunt-contrib-jasmine": "~0.6.3",
     "grunt-contrib-coffee": "~0.10.1",
     "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-watch": "~0.6.1"
+    "grunt-contrib-testem": "~0.5.16"
   },
   "dependencies": {
     "lodash": "~2.4.1",
