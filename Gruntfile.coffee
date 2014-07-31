@@ -31,9 +31,9 @@ module.exports = (grunt) ->
           launch_in_dev: ["PhantomJS"]
           before_tests: "grunt coffee"
           serve_files: [
-            "out/**/*.js"
             "node_modules/lodash/lodash.js"
             "node_modules/jquery/dist/jquery.js"
+            "out/**/*.js"
           ]
           watch_files: [
             "src/**/*.coffee"
