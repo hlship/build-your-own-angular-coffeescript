@@ -957,5 +957,26 @@ describe "Scope", ->
 
       expect scope.counter
         .toBe 2
+
+    it "notices items reordered in an array", ->
+
+      scope.arr = [2, 1, 3]
+      scope.counter =0
+
+      scope.$watchCollection watchArr, incrementCounter
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 1
+
+      scope.arr.sort()
+      scope.$digest()
+
+      expect scope.counter
+        .toBe 2
+
+      scope.$digest()
+      expect scope.counter
+        .toBe 2
         
 
