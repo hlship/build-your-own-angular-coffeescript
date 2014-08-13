@@ -875,6 +875,24 @@ describe "Scope", ->
 
       expectCounterAfterDigest 2
 
+    it "does not fail on NaNs in arrays", ->
+
+      scope.arr = [2, NaN, 3]
+      scope.counter = 0
+
+      scope.$watchCollection watchArr, incrementCounter
+
+      expectCounterAfterDigest 1
+
+    it "does not fail on NaN attributes in objects", ->
+
+      scope.counter = 0
+      scope.obj = {a: NaN}
+
+      scope.$watchCollection ((s) -> s.obj), incrementCounter
+
+      expectCounterAfterDigest 1
+
     it "notices items reordered in an array", ->
 
       scope.arr = [2, 1, 3]

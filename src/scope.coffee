@@ -202,8 +202,6 @@ areEqual = (newValue, oldValue, valueEq) ->
 
   internalWatchFn = (scope) ->
 
-    console.log _.arrayLike
-
     newValue = watchFn scope
 
     if _.isObject newValue
@@ -222,7 +220,9 @@ areEqual = (newValue, oldValue, valueEq) ->
 
           _.forEach newValue, (newItem, i) ->
 
-            if newItem isnt oldValue[i]
+            bothNaN = (_.isNaN newItem) and (_.isNaN oldValue[i])
+
+            if (not bothNaN) and (newItem isnt oldValue[i])
               changeCount++
               oldValue[i] = newItem
 
@@ -230,6 +230,12 @@ areEqual = (newValue, oldValue, valueEq) ->
           if (not _.isObject oldValue) or (_.isArrayLike oldValue)
             changeCount++
             oldValue = {}
+
+          _.forOwn newValue, (newVal, key) ->
+            bothNaN = (_.isNaN newVal) and (_.isNaN oldValue[key])
+            if (not bothNaN) and (oldValue[key] isnt newVal)
+              changeCount++
+              oldValue[key] = newVal
     else
 
       # Non-collection value
