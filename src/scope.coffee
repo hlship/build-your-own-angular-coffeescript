@@ -239,7 +239,7 @@ areEqual = (newValue, oldValue, valueEq) ->
     else
 
       # Non-collection value
-      if newValue isnt oldValue
+      if (not areEqual newValue, oldValue, false)
         changeCount++
 
       # BYOA mentions how this is Angular's current behavior, even though in
