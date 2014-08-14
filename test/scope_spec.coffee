@@ -889,7 +889,7 @@ describe "Scope", ->
       scope.counter = 0
       scope.obj = {a: NaN}
 
-      scope.$watchCollection ((s) -> s.obj), incrementCounter
+      scope.$watchCollection watchObj, incrementCounter
 
       expectCounterAfterDigest 1
 
@@ -937,6 +937,52 @@ describe "Scope", ->
       expectCounterAfterDigest 2
 
       expectCounterAfterDigest 2
+
+    it "notices when the an attribute is added to an object", ->
+
+      scope.counter = 0
+      scope.obj = {a: 1}
+
+      scope.$watchCollection watchObj, incrementCounter
+
+      expectCounterAfterDigest 1
+
+      scope.obj.b = 2
+
+      expectCounterAfterDigest 2
+
+      expectCounterAfterDigest 2
+
+    it "notices when an attribute is changed in an object", ->
+
+      scope.counter = 0
+      scope.obj = {a: 1}
+
+      scope.$watchCollection watchObj, incrementCounter
+
+      expectCounterAfterDigest 1
+
+      scope.obj.a = 2
+
+      expectCounterAfterDigest 2
+
+      expectCounterAfterDigest 2
+
+    it "notices when an attribute is removed from an object", ->
+
+      scope.counter = 0
+      scope.obj = {a: 1}
+
+      scope.$watchCollection watchObj, incrementCounter
+
+      expectCounterAfterDigest 1
+
+      delete scope.obj.a
+
+      expectCounterAfterDigest 2
+
+      expectCounterAfterDigest 2      
+
 
 
 

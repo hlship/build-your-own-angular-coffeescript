@@ -236,6 +236,12 @@ areEqual = (newValue, oldValue, valueEq) ->
             if (not bothNaN) and (oldValue[key] isnt newVal)
               changeCount++
               oldValue[key] = newVal
+
+          _.forOwn oldValue, (oldVal, key) ->
+            if (not newValue.hasOwnProperty key)
+              delete oldValue[key]
+              changeCount++
+
     else
 
       # Non-collection value
