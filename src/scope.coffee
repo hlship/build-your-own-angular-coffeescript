@@ -198,6 +198,7 @@ areEqual = (newValue, oldValue, valueEq) ->
 
   newValue = null
   oldValue = null
+  oldLength = 0
   changeCount = 0
 
   internalWatchFn = (scope) ->
@@ -230,17 +231,28 @@ areEqual = (newValue, oldValue, valueEq) ->
           if (not _.isObject oldValue) or (_.isArrayLike oldValue)
             changeCount++
             oldValue = {}
+            oldLength = 0
+
+          newLength = 0
 
           _.forOwn newValue, (newVal, key) ->
-            bothNaN = (_.isNaN newVal) and (_.isNaN oldValue[key])
-            if (not bothNaN) and (oldValue[key] isnt newVal)
+            newLength++
+            if oldValue.hasOwnProperty key
+              bothNaN = (_.isNaN newVal) and (_.isNaN oldValue[key])
+              if (not bothNaN) and (oldValue[key] isnt newVal)
+                changeCount++
+                oldValue[key] = newVal
+            else
               changeCount++
+              oldLength++
               oldValue[key] = newVal
 
-          _.forOwn oldValue, (oldVal, key) ->
-            if (not newValue.hasOwnProperty key)
-              delete oldValue[key]
-              changeCount++
+          if oldLength > newLength
+            changeCount++
+            _.forOwn oldValue, (oldVal, key) ->
+              if (not newValue.hasOwnProperty key)
+                delete oldValue[key]
+                oldLength--
 
     else
 
