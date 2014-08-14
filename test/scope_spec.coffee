@@ -981,7 +981,21 @@ describe "Scope", ->
 
       expectCounterAfterDigest 2
 
-      expectCounterAfterDigest 2      
+      expectCounterAfterDigest 2
+
+    it "does not consider any object with a length property as an array", ->
+
+      scope.obj = {length: 42, otherKey: "abc"}      
+      scope.counter = 0
+
+      scope.$watchCollection watchObj, incrementCounter
+
+      scope.$digest()
+
+      scope.obj.newKey = "def"
+
+      expectCounterAfterDigest 2
+
 
 
 
