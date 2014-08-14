@@ -54,6 +54,7 @@ initScope = (scope) ->
 
   siblings.splice ix, 1 if ix >= 0
 
+  return
 
 @Scope::$$everyScope = (fn) ->
 
@@ -68,7 +69,11 @@ initScope = (scope) ->
 
   @$$phase = phase
 
-@Scope::$clearPhase = -> @$$phase = null
+  return
+
+@Scope::$clearPhase = -> 
+  @$$phase = null
+  return
 
 # This isn't called, its used as a kind of private substitute for undefined
 # to ensure that listener is invoked on the first digest. Functions always
@@ -92,6 +97,7 @@ initWatchVal = ->
     if ix >= 0
       @$$watchers.splice ix, 1 
       @$$lastDirtyWatch = null
+    return
 
 areEqual = (newValue, oldValue, valueEq) ->
   return _.isEqual newValue, oldValue if valueEq
@@ -179,6 +185,8 @@ areEqual = (newValue, oldValue, valueEq) ->
     @$clearPhase()
     @$$root.$digest()
 
+  return
+
 @Scope::$evalAsync = (expr) ->
 
   # When there is no digest currently AND
@@ -191,8 +199,12 @@ areEqual = (newValue, oldValue, valueEq) ->
     scope: this
     expression: expr
 
+  return
+
 @Scope::$$postDigest = (callback) ->
   @$$postDigestQueue.push callback
+
+  return
 
 @Scope::$watchCollection = (watchFn, listenerFn) ->
 
@@ -234,6 +246,8 @@ areEqual = (newValue, oldValue, valueEq) ->
               changeCount++
               oldValue[i] = newItem
 
+            return
+
         else
           if (not _.isObject oldValue) or (_.isArrayLike oldValue)
             changeCount++
@@ -253,6 +267,7 @@ areEqual = (newValue, oldValue, valueEq) ->
               changeCount++
               oldLength++
               oldValue[key] = newVal
+            return
 
           if oldLength > newLength
             changeCount++
@@ -260,6 +275,7 @@ areEqual = (newValue, oldValue, valueEq) ->
               if (not newValue.hasOwnProperty key)
                 delete oldValue[key]
                 oldLength--
+              return
 
     else
 
@@ -287,3 +303,5 @@ areEqual = (newValue, oldValue, valueEq) ->
       veryOldValue = _.clone newValue
 
   @$watch internalWatchFn, internalListenerFn
+
+  return
