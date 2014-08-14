@@ -196,10 +196,17 @@ areEqual = (newValue, oldValue, valueEq) ->
 
 @Scope::$watchCollection = (watchFn, listenerFn) ->
 
+  thisScope = this
   newValue = null
   oldValue = null
   oldLength = 0
   changeCount = 0
+  # Tracking the old value is expensive (a copy must be made!)
+  # so we only do it if the listener function has more than one
+  # parameter (parameter #2 is the oldValue).
+  trackVeryOldValue = listenerFn.length > 1
+  veryOldValue = null
+  firstListenerInvocation = true
 
   internalWatchFn = (scope) ->
 
@@ -270,6 +277,13 @@ areEqual = (newValue, oldValue, valueEq) ->
 
   internalListenerFn = =>
 
-    listenerFn newValue, oldValue, this
+    if firstListenerInvocation
+      listenerFn newValue, newValue, thisScope
+      firstListenerInvocation = false
+    else
+      listenerFn newValue, veryOldValue, thisScope
+
+    if trackVeryOldValue
+      veryOldValue = _.clone newValue
 
   @$watch internalWatchFn, internalListenerFn
