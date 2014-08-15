@@ -1046,6 +1046,55 @@ describe "Scope", ->
       expect oldValueGiven
         .toEqual {a: 1, b: 2}
 
+  describe "Events", ->
+
+    parent = null
+    scope = null
+    child = null
+    isolatedChild = null
+
+    beforeEach ->
+      parent = new Scope()
+      scope = parent.$new()
+      child = scope.$new()
+      isolatedChild = scope.$new true
+
+    it "allow registering listeners", ->
+
+      listener1 = ->
+      listener2 = ->
+      listener3 = ->
+
+      scope.$on "someEvent", listener1
+      scope.$on "someEvent", listener2
+      scope.$on "someOtherEvent", listener3
+
+      expect scope.$$listeners
+        .toEqual
+          someEvent: [listener1, listener2]
+          someOtherEvent: [listener3]
+
+    it "registers different listners for every scope", ->
+
+      listener1 = ->
+      listener2 = ->
+      listener3 = ->
+
+      scope.$on "someEvent", listener1
+      child.$on "someEvent", listener2
+      isolatedChild.$on "someEvent", listener3
+
+      expect scope.$$listeners
+        .toEqual
+          someEvent: [listener1]
+
+      expect child.$$listeners
+        .toEqual
+          someEvent: [listener2]
+
+      expect isolatedChild.$$listeners
+        .toEqual
+          someEvent: [listener3]
 
 
 

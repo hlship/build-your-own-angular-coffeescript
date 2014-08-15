@@ -6,6 +6,7 @@ initScope = (scope) ->
 
   scope.$$watchers = []
   scope.$$children = []
+  scope.$$listeners = {}
 
   return scope
 
@@ -304,4 +305,13 @@ areEqual = (newValue, oldValue, valueEq) ->
 
   @$watch internalWatchFn, internalListenerFn
 
+  return
+
+
+@Scope::$on = (eventName, listener) ->
+  eventListeners = @$$listeners[eventName]
+  if not eventListeners
+    @$$listeners[eventName] = [listener]
+  else
+    eventListeners.push listener
   return
