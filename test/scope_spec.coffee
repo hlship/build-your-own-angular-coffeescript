@@ -1096,6 +1096,77 @@ describe "Scope", ->
         .toEqual
           someEvent: [listener3]
 
+    for method in ["$emit", "$broadcast"]
+
+      it "calls the listeners of the matching event on #{method}", ->
+        listener1 = jasmine.createSpy()
+        listener2 = jasmine.createSpy()
+
+        scope.$on "someEvent", listener1
+        scope.$on "someOtherEvent", listener2
+
+        scope[method] "someEvent"
+
+        expect listener1
+          .toHaveBeenCalled()
+
+        expect listener2
+          .not.toHaveBeenCalled()
+
+      it "passes an event object with a name to listeners on #{method}", ->
+
+        listener = jasmine.createSpy()
+        scope.$on "someEvent", listener
+
+        scope[method] "someEvent"
+
+        expect listener
+          .toHaveBeenCalled()
+
+        expect listener.calls.mostRecent().args[0].name
+          .toEqual "someEvent"
+
+      it "passes the same event object to each listener on #{method}", ->
+
+        listener1 = jasmine.createSpy()
+        listener2 = jasmine.createSpy()
+
+        scope.$on "someEvent", listener1
+        scope.$on "someEvent", listener2
+
+        scope[method] "someEvent"
+
+        expect listener1.calls.mostRecent().args[0]
+          .toBe listener2.calls.mostRecent().args[0]
+
+      it "passes additional arguments to listeners on #{method}", ->
+
+        listener = jasmine.createSpy()
+        scope.$on "someEvent", listener
+
+        scope[method] "someEvent", "and", ["additional", "arguments"], "..."
+
+        actual = listener.calls.mostRecent().args
+
+        expect actual[1]
+          .toEqual "and"
+
+        expect actual[2]
+          .toEqual ["additional", "arguments"]
+
+        expect actual[3]
+          .toEqual "..."
+
+      it "returns the event object on #{method}", ->
+
+        returnedEvent = scope[method] "someEvent"
+
+        expect returnedEvent
+          .toBeDefined()
+
+        expect returnedEvent.name
+          .toEqual "someEvent"
+
 
 
 

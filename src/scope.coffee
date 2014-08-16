@@ -315,3 +315,20 @@ areEqual = (newValue, oldValue, valueEq) ->
   else
     eventListeners.push listener
   return
+
+@Scope::$$fireEventOnScope = (eventName, additionalArguments) ->
+  event = name: eventName
+  listeners = @$$listeners[eventName]
+  if listeners
+    allArgs = [event].concat additionalArguments 
+    for listener in listeners
+      listener.apply null, allArgs
+  event
+
+@Scope::$emit = (eventName) ->
+  @$$fireEventOnScope eventName, _.rest arguments
+
+@Scope::$broadcast = (eventName) ->
+  @$$fireEventOnScope eventName, _.rest arguments
+
+
